@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.env
+
+# Poetry
+poetry.lock
+
+# Chainlit artifacts
+.chainlit/
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+crash.log
+
+# IDE
+.vscode/
+.idea/
