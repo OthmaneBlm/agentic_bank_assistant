@@ -26,6 +26,8 @@ jobs:
           pip install --upgrade pip
           pip install poetry
           poetry --version
+          pip install poetry-plugin-export
+
 
       - name: Install dependencies locally (optional for lint/tests)
         run: |
@@ -33,7 +35,8 @@ jobs:
 
       - name: Export Poetry requirements for Azure
         run: |
-          poetry export -f requirements.txt --without-hashes -o requirements.txt
+          poetry export -f requirements.txt --output requirements.txt --without-hashes
+
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
