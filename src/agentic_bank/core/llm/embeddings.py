@@ -8,8 +8,8 @@ def embed_texts(texts: List[str]) -> np.ndarray:
     api_key = os.getenv("AZURE_OPENAI_API_KEY")
    
     client = AzureOpenAI(
-        api_version=os.getenv("AZURE_OPENAI_EMBEDDING_API_VERSION"),
-        azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT_EMBEDING"),
+        api_version=os.getenv("AZURE_OPENAI_EMBEDDING_API_VERSION", "2024-12-01-preview"),
+        azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
         api_key=api_key
     )
    

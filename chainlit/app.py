@@ -5,8 +5,8 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from dotenv import load_dotenv
-load_dotenv(dotenv_path=ROOT / ".env")
+#from dotenv import load_dotenv
+#load_dotenv(dotenv_path=ROOT / ".env")
 # ------------------------------------------------------------------------------
 
 import chainlit as cl
@@ -18,7 +18,7 @@ from agentic_bank.core.logging import setup_logging, get_logger
 setup_logging()
 cl_log = get_logger("chainlit")
 cl_log.info(
-    f"ENV: endpoint={os.getenv('AZURE_OPENAI_ENDPOINT')} deployment={os.getenv('AZURE_OPENAI_DEPLOYMENT')}",
+    f"ENV: endpoint={os.getenv('AZURE_OPENAI_ENDPOINT')} deployment={os.getenv('AZURE_OPENAI_DEPLOYMENT', 'gpt-4o')}",
     extra={"stage": "ui.env"}
 )
 

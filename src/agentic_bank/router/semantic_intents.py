@@ -33,7 +33,7 @@ class SemanticIntents:
         )
 
         # Replace with your Azure OpenAI embeddings deployment name
-        self.embed_model = os.getenv("AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT", "text-embedding-ada-002")
+        self.embed_model = os.getenv("AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT", "text-embedding-3-large")
 
         # Default intents if none provided
         self.intents = intents or [
