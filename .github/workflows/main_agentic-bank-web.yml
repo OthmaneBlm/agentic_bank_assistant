@@ -1,3 +1,4 @@
+
 name: Build and deploy Python app to Azure Web App - agentic-bank-web
 
 on:
@@ -52,33 +53,14 @@ jobs:
         with:
           name: python-app
 
-      - name: Login to Azure
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Fetch Key Vault secrets
-        id: keyvault
-        run: |
-          AZURE_OPENAI_ENDPOINT=$(az keyvault secret show --vault-name "agentic-bank-kv" --name "AZURE_OPENAI_ENDPOINT" --query value -o tsv)
-          AZURE_OPENAI_API_KEY=$(az keyvault secret show --vault-name "agentic-bank-kv" --name "AZURE_OPENAI_API_KEY" --query value -o tsv)
-          CHAINLIT_JWT_SECRET=$(az keyvault secret show --vault-name "agentic-bank-kv" --name "CHAINLIT_JWT_SECRET" --query value -o tsv)
-          echo "AZURE_OPENAI_ENDPOINT=$AZURE_OPENAI_ENDPOINT" >> $GITHUB_ENV
-          echo "AZURE_OPENAI_API_KEY=$AZURE_OPENAI_API_KEY" >> $GITHUB_ENV
-          echo "CHAINLIT_JWT_SECRET=$CHAINLIT_JWT_SECRET" >> $GITHUB_ENV
-
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'agentic-bank-web'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_4996D8F13EAF47D1A78A890586AECBE3 }}
-
-      - name: Set Web App environment variables from Key Vault
-        run: |
-          az webapp config appsettings set \
-            --name agentic-bank-web \
-            --resource-group agentic-bank-rg \
-            --settings AZURE_OPENAI_ENDPOINT=$AZURE_OPENAI_ENDPOINT \
-                       AZURE_OPENAI_API_KEY=$AZURE_OPENAI_API_KEY \
-                       CHAINLIT_JWT_SECRET=$CHAINLIT_JWT_SECRET
+          package: .
+        env:
+          AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
+          AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+          CHAINLIT_JWT_SECRET: ${{ secrets.CHAINLIT_JWT_SECRET }}
