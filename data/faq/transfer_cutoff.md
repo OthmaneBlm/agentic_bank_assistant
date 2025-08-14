@@ -1,0 +1,1 @@
+International transfer cutoff time is 17:00 CET on business days. Transfers after this time are processed next business day.

@@ -1,0 +1,1 @@
+You can temporarily freeze your card in the mobile app and unfreeze anytime. Blocking the card is permanent and requires replacement.

@@ -1,0 +1,12 @@
+{"ts": 1755158807.339816, "role": "user", "content": "hello, what the atm limit", "meta": {}}
+{"ts": 1755158811.4148462, "role": "assistant", "content": "The daily ATM withdrawal limit is €500 for standard accounts and €1,000 for premium accounts.", "meta": {"agent": "agent-faq-llm"}}
+{"ts": 1755158830.1083567, "role": "user", "content": "how can i block a card", "meta": {}}
+{"ts": 1755158835.8886611, "role": "assistant", "content": "Could you please provide the type of card (debit, credit, or prepaid), the card number (full or masked), and the reason for blocking (lost, stolen, fraud, or damaged)?", "meta": {"agent": "agent-card-control-llm"}}
+{"ts": 1755158860.020048, "role": "user", "content": "debit card, number 3466 and reason is lost", "meta": {}}
+{"ts": 1755158861.2945504, "role": "assistant", "content": "Can you confirm that you want to block your debit card ending in 3466 due to it being lost? Please reply with 'yes' to proceed.", "meta": {"agent": "agent-card-control-llm"}}
+{"ts": 1755158867.079897, "role": "user", "content": "yes", "meta": {}}
+{"ts": 1755158869.6535296, "role": "assistant", "content": "Your debit card ending in 3466 has been successfully blocked due to it being lost. Let me know if you need further assistance.", "meta": {"agent": "agent-card-control-llm"}}
+{"ts": 1755158878.2498648, "role": "user", "content": "no thank thats all", "meta": {}}
+{"ts": 1755158898.8108795, "role": "user", "content": "nothing further, bye", "meta": {}}
+{"ts": 1755158902.170543, "role": "user", "content": "bye", "meta": {}}
+{"ts": 1755158902.1901052, "role": "assistant", "content": "Great — I’ll close this issue. If you need anything else, just tell me.", "meta": {"agent": "system"}}
