@@ -21,10 +21,11 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Poetry
+      - name: Install latest Poetry
         run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          echo "${HOME}/.local/bin" >> $GITHUB_PATH
+          pip install --upgrade pip
+          pip install poetry
+          poetry --version
 
       - name: Install dependencies locally (optional for lint/tests)
         run: |
