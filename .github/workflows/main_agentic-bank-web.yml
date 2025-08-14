@@ -63,7 +63,7 @@ jobs:
         with:
           app-name: 'agentic-bank-web'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_4996D8F13EAF47D1A78A890586AECBE3 }}
           package: .
         env:
           AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
