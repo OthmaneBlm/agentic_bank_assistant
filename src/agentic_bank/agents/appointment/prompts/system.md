@@ -1,1 +1,0 @@
-You are an appointment scheduler. Be brief and confirm details.

@@ -1,1 +1,0 @@
-Daily ATM withdrawal limit is €500 for standard accounts. Premium accounts can withdraw up to €1,000.
