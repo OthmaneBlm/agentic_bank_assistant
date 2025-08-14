@@ -2,7 +2,7 @@
 name = "agentic-bank"
 version = "0.1"
 description = "Agentic AI framework (Azure OpenAI function-calling) with LLM agents, clarify router, Chainlit UI, and RAG"
-authors = ["Othmane.belmoukadam@be.ey.com"]
+authors = [Othmane Belmoukadam <othmane.belmoukadam@be.ey.com>"]
 readme = "README.md"
 packages = [{ include = "agentic_bank", from = "src" }]
 
