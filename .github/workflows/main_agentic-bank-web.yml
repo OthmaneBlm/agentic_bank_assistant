@@ -22,30 +22,12 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Poetry
+      # Install dependencies locally (optional - for lint/tests)
+      - name: Install dependencies locally
         run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          echo "${HOME}/.local/bin" >> $GITHUB_PATH
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-      - name: Install dependencies with Poetry (in-project venv)
-        run: |
-          poetry config virtualenvs.in-project true
-          poetry install --no-interaction --no-ansi
-
-      - name: Prepare package with code + venv
-        run: |
-          mkdir /tmp/package
-          shopt -s dotglob
-          cp -r * /tmp/package/
-          cp -r .venv /tmp/package/.venv
-          mv /tmp/package ./package
-
-
-      - name: Upload artifact for deployment
-        uses: actions/upload-artifact@v4
-        with:
-          name: python-app
-          path: package
 
   deploy:
     runs-on: ubuntu-latest
