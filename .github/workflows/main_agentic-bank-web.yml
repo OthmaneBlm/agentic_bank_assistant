@@ -35,8 +35,10 @@ jobs:
       - name: Prepare package with code + venv
         run: |
           mkdir package
-          cp -r . package/
+          shopt -s dotglob
+          cp -r * package/
           cp -r .venv package/.venv
+
 
       - name: Upload artifact for deployment
         uses: actions/upload-artifact@v4
