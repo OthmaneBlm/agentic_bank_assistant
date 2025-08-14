@@ -34,10 +34,11 @@ jobs:
 
       - name: Prepare package with code + venv
         run: |
-          mkdir package
+          mkdir /tmp/package
           shopt -s dotglob
-          cp -r * package/
-          cp -r .venv package/.venv
+          cp -r * /tmp/package/
+          cp -r .venv /tmp/package/.venv
+          mv /tmp/package ./package
 
 
       - name: Upload artifact for deployment
