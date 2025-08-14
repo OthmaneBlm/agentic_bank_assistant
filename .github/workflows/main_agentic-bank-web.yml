@@ -7,53 +7,22 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
       - name: Install latest Poetry
         run: |
           pip install --upgrade pip
           pip install poetry
-          poetry --version
           pip install poetry-plugin-export
-
-
-      - name: Install dependencies locally (optional for lint/tests)
-        run: |
-          poetry install --no-interaction --no-ansi
 
       - name: Export Poetry requirements for Azure
         run: |
           poetry export -f requirements.txt --output requirements.txt --without-hashes
-
-
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app
-          path: .
-  
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: app
-          path: .
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
@@ -61,7 +30,6 @@ jobs:
           app-name: 'agentic-bank-web'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_4996D8F13EAF47D1A78A890586AECBE3 }}
-          package: .
         env:
           AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_KEY }}
