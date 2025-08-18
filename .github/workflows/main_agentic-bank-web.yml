@@ -27,7 +27,7 @@ jobs:
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'agentic-bank-web'
+          app-name: 'banker-agent-web'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_4996D8F13EAF47D1A78A890586AECBE3 }}
         env:
