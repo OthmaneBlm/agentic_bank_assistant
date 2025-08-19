@@ -1,13 +1,19 @@
 # --- Bootstrap: path + .env (works from any CWD) ------------------------------
-import sys, pathlib, os, uuid
-ROOT = pathlib.Path(__file__).resolve().parents[1]
+from pathlib import Path
+import sys, os, uuid
+
+# repo root:   chainlit/app.py -> parents[2]
+ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "src"
+
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-#from dotenv import load_dotenv
-#load_dotenv(dotenv_path=ROOT / ".env")
-# ------------------------------------------------------------------------------
+# from dotenv import load_dotenv
+# load_dotenv(ROOT / ".env")
+
+# If you use BASE later for prompts/data:
+BASE = SRC / "agentic_bank"
 
 import chainlit as cl
 from pathlib import Path

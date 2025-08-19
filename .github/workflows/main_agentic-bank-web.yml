@@ -2,35 +2,24 @@ name: Build and deploy Python app to Azure Web App - agentic-bank-web
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Install latest Poetry
+      - name: Verify requirements.txt exists
         run: |
-          pip install --upgrade pip
-          pip install poetry
-          pip install poetry-plugin-export
-
-      - name: Export Poetry requirements for Azure
-        run: |
-          poetry export -f requirements.txt --output requirements.txt --without-hashes
+          test -f requirements.txt || (echo "requirements.txt missing at repo root" && exit 1)
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'banker-agent-web'
+          app-name: 'banker-agent-web'        # ← confirm the exact name
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_4996D8F13EAF47D1A78A890586AECBE3 }}
-        env:
-          AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
-          AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_KEY }}
-          CHAINLIT_JWT_SECRET: ${{ secrets.CHAINLIT_JWT_SECRET }}
+          package: .                          # deploy source; Oryx builds on Azure
