@@ -6,7 +6,7 @@ variable "project_name" {
 variable "location" {
   description = "Azure region (must support Azure OpenAI, e.g., eastus)."
   type        = string
-  default     = "eastus"
+  default     = "westeurope"
 }
 
 variable "openai_sku" {
