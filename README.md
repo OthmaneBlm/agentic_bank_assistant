@@ -1,25 +1,49 @@
 
-# Agentic Bank – LLM Router + Multi-Agent Demo
+# Agenitc Framework Accelerator
 
-This project is a production-ready demo of an **agentic AI banking assistant** running on Azure, with:
+This project is an implementation demo of an **agentic AI banking assistant** running on Azure, with:
 - **Super Router** combining keyword, semantic, and LLM-based intent detection with topic shift handling.
 - **Card Control Agent** for blocking/replacing cards using LLM-driven decision-making and tool calls.
 - **Appointment Agent** for booking branch appointments using slot filling + tool calls.
 - **FAQ Agent (RAG)** for knowledge-base queries.
 - **Chainlit UI** with login, user profiles, and session history.
 
+## Architecture and buidling blocks
 
+Below is the high-level architecture of the Agentic Bank framework:
 
-## Building Blocks
+![Architecture Diagram](docs/architecture.png)
 
-- API Layer: FastAPI, auth header (basic and deterministic), session lifecycle.
+### Key Building Blocks
 
-- Core: ProfileStore, ConversationMemory, InMemoryStore.
-- Routing: EnsembleRouter + SuperRouter LLM.
-- Agents: Card Control, Appointment, FAQ.
-- Tools: Registered per agent (card APIs, appointment booking, FAQ KB search).
-- External: Azure OpenAI (LLM), Bank APIs, Knowledge Base (to be provisioned and connected)
-- Monitoring: Azure App Insights + Log Analytics (coming soon)
+- **API Layer (FastAPI)**  
+  Manages sessions, auth, lifecycle, and orchestrator entrypoint.
+
+- **Router (Ensemble + SuperRouter)**  
+  Routes user intent using keyword, semantic, LLM, and topic-shift detection.  
+  Escalates to SuperRouter for tie-breaking/low-confidence.
+
+- **Agents (Microservices style)**  
+  - Card Control Agent (card block/unblock, replacement)  
+  - Appointment Agent (slot-filling & booking)  
+  - FAQ Agent (RAG over KB)  
+  Each agent has:  
+  - `prompts/` (system prompts)  
+  - `tools/` (API/tool adapters)  
+  - `llm_agent.py` (agent orchestration)  
+
+- **Tools Layer**  
+  Registered per agent; standardized contracts for bank APIs, KB, etc.
+
+- **Stores**  
+  - ProfileStore (user profiles)  
+  - ConversationMemory (history)  
+  - InMemoryStore (facts, session state)
+
+- **External Integrations**  
+  - Azure OpenAI (LLM + embeddings)  
+   - Bank APIs 
+  - Knowledge Base
 
 ## 🚀 Quick Start (Local)
 
