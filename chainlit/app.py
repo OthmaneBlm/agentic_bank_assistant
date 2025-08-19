@@ -284,9 +284,3 @@ async def main(message: cl.Message):
         author="debug",
         content=f"final={agent_name or '-'}({conf:.2f}) | last_topic={sess.get('last_topic') or '-'} active={sess.get('active_agent') or '-'}"
     ).send()
-
-if __name__ == "__main__":
-    import os
-    port = int(os.environ.get("PORT", 8000))
-    import subprocess
-    subprocess.run(["chainlit", "run", "app.py", "--host", "0.0.0.0", "--port", str(port)])
