@@ -1,96 +1,108 @@
-data "azurerm_client_config" "current" {}
+# ---------- Naming helpers ----------
+resource "random_string" "suffix" {
+  length  = 5
+  upper   = false
+  lower   = true
+  numeric = true
+  special = false
+}
 
+locals {
+  rg_name      = "${var.project_name}-rg"
+  plan_name    = "${var.project_name}-plan"
+  app_name     = "${var.project_name}-api-${random_string.suffix.result}"
+  la_name      = "${var.project_name}-law"
+  ai_name      = "${var.project_name}-appi"
+}
+
+# ---------- Resource Group ----------
 resource "azurerm_resource_group" "rg" {
-  name     = "${var.project_name}-rg"
+  name     = local.rg_name
   location = var.location
 }
 
-resource "azurerm_cognitive_account" "openai" {
-  name                = "${var.project_name}-aoai"
-  location            = var.location
+# ---------- Monitoring (lightweight) ----------
+resource "azurerm_log_analytics_workspace" "law" {
+  name                = local.la_name
+  location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  kind                = "OpenAI"
-  sku_name            = var.openai_sku
-  custom_subdomain_name = "${var.project_name}-aoai"
+  sku                 = "PerGB2018"
+  retention_in_days   = 30
 }
 
-resource "azurerm_key_vault" "kv" {
-  name                        = "${var.project_name}-kv"
-  location                    = var.location
-  resource_group_name         = azurerm_resource_group.rg.name
-  tenant_id                   = data.azurerm_client_config.current.tenant_id
-  sku_name                    = "standard"
-  soft_delete_retention_days  = 7
-  purge_protection_enabled    = true
-}
-
-resource "random_password" "chainlit_jwt" {
-  length  = 48
-  special = true
-}
-
-resource "azurerm_key_vault_secret" "openai_key" {
-  name         = "AZURE-OPENAI-API-KEY"
-  value        = azurerm_cognitive_account.openai.primary_access_key
-  key_vault_id = azurerm_key_vault.kv.id
-}
-resource "azurerm_key_vault_secret" "openai_endpoint" {
-  name         = "AZURE-OPENAI-ENDPOINT"
-  value        = azurerm_cognitive_account.openai.endpoint
-  key_vault_id = azurerm_key_vault.kv.id
-}
-resource "azurerm_key_vault_secret" "chainlit_jwt" {
-  name         = "CHAINLIT-JWT-SECRET"
-  value        = random_password.chainlit_jwt.result
-  key_vault_id = azurerm_key_vault.kv.id
-}
-resource "azurerm_key_vault_secret" "demo_pwd" {
-  name         = "CHAINLIT-DEMO-PASSWORD"
-  value        = var.chainlit_demo_password
-  key_vault_id = azurerm_key_vault.kv.id
-}
-
-resource "azurerm_service_plan" "asp" {
-  name                = "${var.project_name}-plan"
+resource "azurerm_application_insights" "appi" {
+  name                = local.ai_name
+  location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  location            = var.location
-  os_type             = "Linux"
-  sku_name            = var.webapp_sku
+  application_type    = "web"
+  workspace_id        = azurerm_log_analytics_workspace.law.id
 }
 
-resource "azurerm_linux_web_app" "app" {
-  name                = "${var.project_name}-web"
+# ---------- App Service Plan (Linux) ----------
+resource "azurerm_service_plan" "plan" {
+  name                = local.plan_name
+  location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  location            = var.location
-  service_plan_id     = azurerm_service_plan.asp.id
-  https_only          = true
 
-  identity { type = "SystemAssigned" }
+  os_type  = "Linux"
+  sku_name = var.app_service_sku # e.g., B1
+}
+
+# ---------- Linux Web App ----------
+resource "azurerm_linux_web_app" "api" {
+  name                = local.app_name
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  service_plan_id     = azurerm_service_plan.plan.id
+
+  https_only = true
+
+  identity {
+    type = "SystemAssigned"
+  }
 
   site_config {
-    application_stack { python_version = "3.11" }
-    app_command_line = "chainlit run chainlit/app.py --host 0.0.0.0 --port 8000"
+    always_on = true
+
+    # Built-in Python stack
+    application_stack {
+      python_version = "3.11"
+    }
+
+    # Gunicorn+Uvicorn startup (FastAPI)
+    # IMPORTANT: replace module path if your file layout differs
+    # Binds to 0.0.0.0:8000
+    app_command_line = "gunicorn -k uvicorn.workers.UvicornWorker agentic_bank.api.main:app --workers 2 --timeout 600 --bind=0.0.0.0:8000"
   }
 
   app_settings = {
-    WEBSITES_PORT                     = "8000"
-    SCM_DO_BUILD_DURING_DEPLOYMENT    = "true"
+    # Enables Oryx build during deployment from zip/src (if you use it)
+    SCM_DO_BUILD_DURING_DEPLOYMENT           = "1"
 
-    AZURE_OPENAI_ENDPOINT             = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.openai_endpoint.id})"
-    AZURE_OPENAI_API_KEY              = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.openai_key.id})"
-    AZURE_OPENAI_API_VERSION          = "2024-08-01-preview"
-    AZURE_OPENAI_DEPLOYMENT           = var.openai_chat_deployment
-    AZURE_OPENAI_EMBEDDING_DEPLOYMENT = var.openai_embedding_deployment
+    # If your app binds to 8000 (as above)
+    WEBSITES_PORT                            = "8000"
 
-    CHAINLIT_DEMO_PASSWORD            = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.demo_pwd.id})"
-    CHAINLIT_JWT_SECRET               = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.chainlit_jwt.id})"
+    # Your app’s simple auth (used as X-Demo-Password header)
+    CHAINLIT_DEMO_PASSWORD                   = var.chainlit_demo_password
+
+    # App Insights
+    APPLICATIONINSIGHTS_CONNECTION_STRING    = azurerm_application_insights.appi.connection_string
+    APPLICATIONINSIGHTS_INSTRUMENTATIONKEY   = azurerm_application_insights.appi.instrumentation_key
   }
-}
 
-resource "azurerm_key_vault_access_policy" "webapp_policy" {
-  key_vault_id = azurerm_key_vault.kv.id
-  tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = azurerm_linux_web_app.app.identity[0].principal_id
+  logs {
+    http_logs {
+      file_system {
+        retention_in_days = 7
+        retention_in_mb   = 35
+      }
+    }
+  }
 
-  secret_permissions = ["Get", "List"]
+  lifecycle {
+    ignore_changes = [
+      app_settings["WEBSITE_RUN_FROM_PACKAGE"],  # if you zip-deploy later
+      site_config[0].application_stack[0].python_version # minor patches
+    ]
+  }
 }

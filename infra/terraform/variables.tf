@@ -1,40 +1,24 @@
 variable "project_name" {
-  description = "Short, unique name used to prefix resources."
+  description = "Short name for resources"
   type        = string
+  default     = "agentic-bank"
 }
 
 variable "location" {
-  description = "Azure region (must support Azure OpenAI, e.g., eastus)."
+  description = "Azure region"
   type        = string
   default     = "westeurope"
 }
 
-variable "openai_sku" {
-  description = "Azure OpenAI SKU"
-  type        = string
-  default     = "S0"
-}
-
-variable "webapp_sku" {
-  description = "App Service Plan SKU"
+variable "app_service_sku" {
+  description = "App Service Plan SKU (B1, S1...)"
   type        = string
   default     = "B1"
 }
 
 variable "chainlit_demo_password" {
-  description = "Password for Chainlit demo login."
+  description = "Header password expected by the API (X-Demo-Password)"
   type        = string
   default     = "demo"
-}
-
-variable "openai_chat_deployment" {
-  description = "Name of your Azure OpenAI Chat model deployment (create this separately)."
-  type        = string
-  default     = "gpt-4o"
-}
-
-variable "openai_embedding_deployment" {
-  description = "Name of your Azure OpenAI Embedding model deployment."
-  type        = string
-  default     = "text-embedding-3-large"
+  sensitive   = true
 }

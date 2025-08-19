@@ -8,7 +8,18 @@ This project is a production-ready demo of an **agentic AI banking assistant** r
 - **FAQ Agent (RAG)** for knowledge-base queries.
 - **Chainlit UI** with login, user profiles, and session history.
 
----
+
+
+## Building Blocks
+
+- API Layer: FastAPI, auth header (basic and deterministic), session lifecycle.
+
+- Core: ProfileStore, ConversationMemory, InMemoryStore.
+- Routing: EnsembleRouter + SuperRouter LLM.
+- Agents: Card Control, Appointment, FAQ.
+- Tools: Registered per agent (card APIs, appointment booking, FAQ KB search).
+- External: Azure OpenAI (LLM), Bank APIs, Knowledge Base (to be provisioned and connected)
+- Monitoring: Azure App Insights + Log Analytics (coming soon)
 
 ## 🚀 Quick Start (Local)
 
@@ -63,8 +74,6 @@ Login with any username and password=`demo` (change in `.env`).
 We provide **Terraform** in `infra/terraform` to provision:
 
 * Resource group
-* Azure OpenAI account
-* Key Vault (stores secrets)
 * App Service Plan (Linux B1 tier)
 * Linux Web App running Chainlit with Key Vault secret references
 
@@ -75,39 +84,19 @@ cd infra/terraform
 terraform init
 terraform apply \
   -var "project_name=agenticbank" \
-  -var "location=eastus" \
-  -var "chainlit_demo_password=demo" \
-  -var "openai_chat_deployment=gpt-4o" \
-  -var "openai_embedding_deployment=text-embedding-3-large"
+  -var "location=eastus" 
 ```
-
-> **Note:** Terraform creates the OpenAI account but **not model deployments**.
-> Deploy `gpt-4o` and `text-embedding-3-large` manually in Azure AI Studio (names must match above).
+> Deploy `gpt-4o` and `text-embedding-3-large` manually in Azure AI Studio.
 
 ---
 
 ### 2️⃣ CI/CD via GitHub Actions
 
-A workflow is included in `.github/workflows/deploy.yml` that:
+A workflow is included in `.github/workflows/main-agentic-banker-deploy.yml` that:
 
 * Triggers on pushes to `main`
 * Zips the repo
 * Deploys to Azure Web App
-
-#### GitHub Secrets required:
-
-* `AZURE_CREDENTIALS` — JSON from:
-
-```bash
-az ad sp create-for-rbac \
-  --name "gh-agentic-bank-deployer" \
-  --role contributor \
-  --scopes /subscriptions/<SUB_ID>/resourceGroups/$(terraform output -raw resource_group) \
-  --sdk-auth
-```
-
-* `AZURE_WEBAPP_NAME` — from `terraform output -raw webapp_name`
-* `AZURE_RESOURCE_GROUP` — from `terraform output -raw resource_group`
 
 ---
 
@@ -130,40 +119,27 @@ Non-secret app settings:
 
 ## 📂 Project Structure
 
-```
+```bash
 src/agentic_bank/
-  core/          # LLM wrapper, memory, messages, tooling, logging
-  router/        # keyword, semantic, LLM intent, topic shift, ensemble
+  api/main.py     # FastAPI entrypoint
+  core/      # LLM wrapper, memory, messages, tooling, logging
+  router/   # keyword, semantic, LLM intent, topic shift, ensemble
   agents/
-    cards/       # CardControlAgentLLM + tools + prompts
+    cards/   # CardControlAgentLLM + tools + prompts
     appointment/ # AppointmentAgentLLM + tools + prompts
-    faq/         # FAQ RAG agent
-chainlit/
-  app.py         # UI orchestration & routing
+    faq/     # FAQ RAG agent
+app_ui/
+  app.py      # UI orchestration & routing
 infra/terraform/ # Azure minimal infra
-.github/workflows/deploy.yml
+.github/workflows/main-agentic-bank-deploy.yml
+requirements.txt
+poetry.toml
 ```
 
 ---
+## 📖 Next Steps
 
-## 🛠 Troubleshooting
-
-* **Auth error:** `ValueError: You must provide a JWT secret…`
-  → Add `CHAINLIT_JWT_SECRET` to `.env`, or run `chainlit create-secret`.
-
-* **Port in use (8000/8001):**
-  → Change ports or stop the running process.
-
-* **Azure 400 Bad Request:**
-  → Ensure your Azure deployment names match environment variables.
-
----
-
-## 📈 Next Steps
-
-* Add Application Insights for telemetry.
-* Store conversation history in Azure Storage or Cosmos DB.
-* Add Terraform for AOAI deployment creation.
-* Containerize the app and deploy from ACR.
-
----
+* Expand tool catalog and contracts.
+* Add retrieval strategy for FAQ agent.
+* Define router thresholds and clarify prompts.
+* Integrate AAD authentication and Key Vault.

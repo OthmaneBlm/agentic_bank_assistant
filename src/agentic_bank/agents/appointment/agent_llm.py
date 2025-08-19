@@ -58,40 +58,40 @@ class AppointmentAgentLLM:
         system_message = self.system_prompt.strip()
 
         user_message = f"""
-You are a banking assistant that books branch appointments.
+        You are a banking assistant that books branch appointments.
 
-Conversation so far:
-{json.dumps(context.get("recent_messages", []), ensure_ascii=False, indent=2)}
+        Conversation so far:
+        {json.dumps(context.get("recent_messages", []), ensure_ascii=False, indent=2)}
 
-Facts collected so far:
-{json.dumps(context.get("facts", {}), ensure_ascii=False, indent=2)}
+        Facts collected so far:
+        {json.dumps(context.get("facts", {}), ensure_ascii=False, indent=2)}
 
-User's latest message:
-{context.get("user_message")}
+        User's latest message:
+        {context.get("user_message")}
 
-Your job:
-- Collect the missing details: branch, date, topic.
-- Once all details are collected, confirm booking (using tools if needed).
-- Decide if the task is fully completed.
-- Respond naturally to the user.
-- Output JSON with:
-  - replyText: what to say to the user
-  - isTerminal: true if the appointment is booked or the request is complete
-  - handledTopic: "appointment_booking"
-  - (optional) facts: any extracted details like branch/date/topic
+        Your job:
+        - Collect the missing details: branch, date, topic.
+        - Once all details are collected, confirm booking (using tools if needed).
+        - Decide if the task is fully completed.
+        - Respond naturally to the user.
+        - Output JSON with:
+        - replyText: what to say to the user
+        - isTerminal: true if the appointment is booked or the request is complete
+        - handledTopic: "appointment_booking"
+        - (optional) facts: any extracted details like branch/date/topic
 
-Example JSON output:
-{{
-  "replyText": "Your appointment is booked at Central branch on 2025-08-20 for mortgage advice.",
-  "isTerminal": true,
-  "handledTopic": "appointment_booking",
-  "facts": {{
-      "branch": "central",
-      "date": "2025-08-20",
-      "topic": "mortgage"
-  }}
-}}
-""".strip()
+        Example JSON output:
+        {{
+        "replyText": "Your appointment is booked at Central branch on 2025-08-20 for mortgage advice.",
+        "isTerminal": true,
+        "handledTopic": "appointment_booking",
+        "facts": {{
+            "branch": "central",
+            "date": "2025-08-20",
+            "topic": "mortgage"
+        }}
+        }}
+        """.strip()
 
         messages = [{"role": "user", "content": user_message}]
         raw = self.llm.chat(messages, system=system_message)
